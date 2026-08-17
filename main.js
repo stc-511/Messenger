@@ -14,7 +14,6 @@ function handleUserInteraction() {
             });
     }
 }
-const bcrypt = dcodeIO.bcrypt;
 const SUPABASE_URL = "https://xlmbncuqsisrbkfbwuze.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cyDlCA1TTk9QPpzhBqxBgQ_SN1-5Amx";
 let authenticated = false;
