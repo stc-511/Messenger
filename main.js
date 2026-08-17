@@ -99,8 +99,8 @@ document.addEventListener('keydown', (event) => {
         setupApp()
       }
       const username = "Robert22G",
-        key = "aio_MJDg24Yk3ALPc8ZMxM5SPvhg6W8D",
-        feedName = "messages",
+        key = "top_secret"
+	feedName = "messages",
         baseUrl = `https://io.adafruit.com/api/v2/${username}/feeds/${feedName}/data`,
         messageQueue = [];
 
