@@ -1,7 +1,7 @@
 import {
     createClient
 } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import bcrypt from "https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js";
+import bcrypt from "https://esm.sh";
 import {
     startHackSequence
 } from "./hack.js";
