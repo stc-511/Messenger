@@ -1,20 +1,6 @@
-import {
-    createClient
-} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import {
-    startHackSequence
-} from "./hack.js";
-
-function handleUserInteraction() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-            .catch((err) => {
-                console.error(`Fullscreen failed: ${err.message}`);
-            });
-    }
-}
 const SUPABASE_URL = "https://xlmbncuqsisrbkfbwuze.supabase.co";
 const SUPABASE_KEY = "sb_publishable_cyDlCA1TTk9QPpzhBqxBgQ_SN1-5Amx";
+const bcrypt = dcodeIO.bcrypt;
 let authenticated = false;
 let myId = "???";
 let myName = "Guest";
@@ -41,13 +27,13 @@ async function receiveData() {
         })), t
     }
 }
-let passwords;
 const nameToId = {};
 for (let e = 176; e <= 255; e++) {
     const t = e.toString(16).toUpperCase();
     nameToId[t] = t, nameToId[t.toLowerCase()] = t
 }
 async function runAuth() {
+    let passwords;
     passwords = await receiveData();
     document.addEventListener('keydown', (event) => {
         if (event.key === 'escape') {
@@ -62,8 +48,8 @@ async function runAuth() {
     }, true);
     const e = prompt("Enter ID or type 'guest':");
     if (!e) {
-        startHackSequence();
-        return
+        window.location.reload();
+        return;
     }
     const t = e.trim().toUpperCase();
     if ("GUEST" === t) {
@@ -73,8 +59,8 @@ async function runAuth() {
         if ("" === passwords[t]) {
             const e = prompt("Account not taken! Please enter your new password:");
             if (!e) {
-                startHackSequence();
-                return
+                window.location.reload();
+                return;
             }
             const n = bcrypt.genSaltSync(10),
                 o = e.trim();
@@ -85,14 +71,14 @@ async function runAuth() {
         if (!n && "ADMIN" !== t || "undefined" == typeof pass) {
             const e = prompt("Enter/confirm Password:");
             if (!e) {
-                startHackSequence();
-                return
+                window.location.reload();
+                return;
             }
             const o = e.trim();
             if ("ADMIN" === t && bcrypt.compareSync(o, passwords[t])) myId = "ADMIN", myName = "ADMIN", authenticated = true;
             else {
                 if (!n || !bcrypt.compareSync(o, passwords[t])) {
-                    alert("Invalid ID or Password."), startHackSequence();
+                    alert("Invalid ID or Password."), window.location.reload();
                     return
                 }
                 myId = t, myName = t, authenticated = true
@@ -102,9 +88,9 @@ async function runAuth() {
     setupApp()
 }
 async function getKey() {
-	const response = await fetch("/.netlify/functions/get-config");
-	const data = await response.json();
-	return data.API_KEY
+        const response = await fetch("/.netlify/functions/get-config");
+        const data = await response.json();
+        return data.API_KEY
 }
 const username = "Robert22G",
     key = getKey()
@@ -236,4 +222,3 @@ const msgInputEl = document.getElementById("msgInput");
 msgInputEl && msgInputEl.addEventListener("keypress", (e => {
     "Enter" === e.key && sendFromUI()
 })), runAuth()
-
