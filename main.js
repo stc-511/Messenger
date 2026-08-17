@@ -1,6 +1,6 @@
 import {
     createClient
-} from "https://jsdelivr.net";
+} from "https://cdn.jsdelivr.net/npm/@supabase/supabasejs/+esm";
 import bcrypt from "https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"; // Note: cdnjs file must support ESM, otherwise use unpkg/skypack ESM wrapper
 import {
     startHackSequence
@@ -103,9 +103,14 @@ async function runAuth() {
     }
     setupApp()
 }
+async function getKey() {
+	const response = await fetch("/.netlify/functions/get-config");
+	const data = await response.json();
+	return data.API_KEY
+}
 const username = "Robert22G",
-    key = "top_secret"
-feedName = "messages",
+    key = getKey()
+    feedName = "messages",
     baseUrl = `https://io.adafruit.com/api/v2/${username}/feeds/${feedName}/data`,
     messageQueue = [];
 
