@@ -133,7 +133,9 @@ function triggerPopUp(e, t) {
 function signOut() {
     window.location.reload()
 }
-
+function changePassword() {
+	
+}
 function renderBubble(e, t, n) {
     const o = document.getElementById("messagesLog");
     if (!o) return;
