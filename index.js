@@ -40,8 +40,14 @@ export default {
           }
         }
         return new Response("Method Not Allowed", { status: 405 });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+	} catch (err) { 
+
+		return new Response(JSON.stringify({ error: err.message, trace: err.stack }), { 
+    		status: 200, 
+    		headers: { "Content-Type": "application/json" } 
+		}); 
+	}
+
       }
     }
 
