@@ -54,12 +54,20 @@ export default {
         }
 
         return new Response("Method Not Allowed", { status: 405 });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { 
-          status: 500, 
-          headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } 
-        });
-      }
+	} catch (err) { 
+  		return new Response(JSON.stringify({ 
+    		CRASH_DETECTED: true,
+	    	message: err.message, 
+    		stack: err.stack 
+  	}), { 
+	    status: 200, 
+	    headers: { 
+	      "Content-Type": "application/json", 
+	      "Access-Control-Allow-Origin": "*" 
+	    } 
+	  }); 
+	}
+
     }
 
     return env.assets.fetch(request);
