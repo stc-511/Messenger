@@ -8,7 +8,7 @@
   },
   "assets": {
     "directory": ".",
-    "binding": "ASSETS",
+    "binding": "assets",
     "run_worker_first": ["/api/*"]
   }
 }
