@@ -1,5 +1,5 @@
 export default {
-  async fetch(request, env, context) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === "/api/adafruit") {
@@ -7,7 +7,7 @@ export default {
       const apiKey = env.API_KEY; 
       const username = "Robert22G";
       const feedName = "messages";
-      const baseUrl = `https://adafruit.com{username}/feeds/${feedName}/data`;
+      const baseUrl = `https://adafruit.com/{username}/feeds/${feedName}/data`;
 
       try {
         if (request.method === "GET" && action === "get") {
