@@ -9,9 +9,14 @@ let myName = "Guest";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function updatePassword(userId, hashedPassword) {
-    const { data: updatedData, error: dbError } = await supabaseClient
+    const {
+        data: updatedData,
+        error: dbError
+    } = await supabaseClient
         .from("users")
-        .update({ pass: hashedPassword })
+        .update({
+            pass: hashedPassword
+        })
         .eq("id", userId);
 
     if (dbError) {
@@ -20,7 +25,10 @@ async function updatePassword(userId, hashedPassword) {
 }
 
 async function receiveData() {
-    const { data: userList, error: dbError } = await supabaseClient
+    const {
+        data: userList,
+        error: dbError
+    } = await supabaseClient
         .from("users")
         .select("*");
 
@@ -87,7 +95,7 @@ async function runAuth() {
             const salt = bcrypt.genSaltSync(10);
             const cleanNewPassword = newPasswordInput.trim();
             const encryptedPassword = bcrypt.hashSync(cleanNewPassword, salt);
-            
+
             await updatePassword(sanitizedId, encryptedPassword);
             passwords[sanitizedId] = encryptedPassword;
         }
@@ -147,11 +155,11 @@ function triggerPopUp(senderName, messageBody) {
     const senderEl = document.getElementById("notifSender"),
         bodyEl = document.getElementById("notifBody"),
         popupContainer = document.getElementById("customNotif");
-        
+
     if (senderEl) senderEl.innerText = senderName;
     if (bodyEl) bodyEl.innerText = messageBody;
     if (popupContainer) popupContainer.style.display = "block";
-    
+
     setTimeout(() => {
         if (popupContainer) popupContainer.style.display = "none";
     }, 6000);
@@ -238,42 +246,52 @@ function sendFromUI() {
     messageInputEl.value = "";
 }
 async function mainLoop() {
-  if (authenticated) {
-    if (messageQueue.length > 0) {
-      const e = messageQueue.shift();
-      try {
-        await fetch(proxyUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "send", value: e })
-        });
-      } catch (t) {
-        messageQueue.unshift(e);
-      }
-    }
-    
-    try {
-      const response = await fetch(`${proxyUrl}?action=get`);
-      if (response.ok) {
-        const t = await response.json();
-        for (let e of t) {
-          const t = e.value.split("|");
-          if (t.length >= 4 && t[2] === myId) {
-            renderBubble(t[3], "received", t[0]);
-            triggerPopUp(t[0], t[3]);
-            
-            await fetch(proxyUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ action: "delete", id: e.id })
-            });
-          }
+    if (authenticated) {
+        if (messageQueue.length > 0) {
+            const e = messageQueue.shift();
+            try {
+                await fetch(proxyUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        action: "send",
+                        value: e
+                    })
+                });
+            } catch (t) {
+                messageQueue.unshift(e);
+            }
         }
-      }
-    } catch (e) {
-      console.log("Poll Error");
+
+        try {
+            const response = await fetch(`${proxyUrl}?action=get`);
+            if (response.ok) {
+                const t = await response.json();
+                for (let e of t) {
+                    const t = e.value.split("|");
+                    if (t.length >= 4 && t[2] === myId) {
+                        renderBubble(t[3], "received", t[0]);
+                        triggerPopUp(t[0], t[3]);
+
+                        await fetch(proxyUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                action: "delete",
+                                id: e.id
+                            })
+                        });
+                    }
+                }
+            }
+        } catch (e) {
+            console.log("Poll Error");
+        }
     }
-  }
 }
 
 
@@ -298,4 +316,10 @@ document.addEventListener('keydown', (event) => {
 
 const msgInputEl = document.getElementById("msgInput");
 if (msgInputEl) {
-msgInputEl.addEventListener("keypress", (event) => {if ("Enter" === event.key) {sendFromUI();}});}runAuth();
+    msgInputEl.addEventListener("keypress", (event) => {
+        if ("Enter" === event.key) {
+            sendFromUI();
+        }
+    });
+}
+runAuth();
