@@ -30,8 +30,8 @@ export default {
           const valuesArray = Array.isArray(data) ? data.map(item => item.value) : [];
           return new Response(JSON.stringify(valuesArray), { headers: corsHeaders });
         } catch (err) {
-          return new Response(JSON.stringify({ error: "Failed fetching data from Adafruit." }), { status: 500, headers: corsHeaders });
-        }
+	  return new Response(JSON.stringify({ error: "Failed fetching logs", details: err.message }), { status: 500, headers: corsHeaders });
+	}
       }
 
       if (request.method === "POST") {
@@ -45,8 +45,8 @@ export default {
           const data = await response.json();
           return new Response(JSON.stringify(data), { headers: corsHeaders });
         } catch (err) {
-          return new Response(JSON.stringify({ error: "Failed pushing payload to Adafruit." }), { status: 500, headers: corsHeaders });
-        }
+	  return new Response(JSON.stringify({ error: "Failed sending payload", details: err.message }), { status: 500, headers: corsHeaders });
+	}
       }
     }
 
