@@ -4,7 +4,7 @@ export default {
     const apiKey = env.API_KEY;
     const username = "Robert22G";
     const feedName = "messages";
-    const baseUrl = `https://io.adafruit.com/api/v2/${username}/feeds/${feedName}/data`;
+    const baseUrl = `https://adafruit.com{username}/feeds/${feedName}/data`;
 
     const corsHeaders = {
       "Content-Type": "application/json",
@@ -21,7 +21,7 @@ export default {
       return new Response(JSON.stringify({ error: "API_KEY secret is missing." }), { status: 500, headers: corsHeaders });
     }
 
-    if (request.method === "GET" && (url.pathname === "/api/get" || url.pathname === "/api/adafruit")) {
+    if (request.method === "GET" && url.pathname === "/api/adafruit") {
       try {
         const response = await fetch(`${baseUrl}?limit=10`, { headers: { "X-AIO-Key": apiKey } });
         const data = await response.json();
@@ -32,7 +32,7 @@ export default {
       }
     }
 
-    if (request.method === "POST" && (url.pathname === "/api/send" || url.pathname === "/api/adafruit")) {
+    if (request.method === "POST" && url.pathname === "/api/adafruit") {
       try {
         const body = await request.json();
         const response = await fetch(baseUrl, {
