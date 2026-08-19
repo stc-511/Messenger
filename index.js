@@ -21,11 +21,10 @@ export default {
       return new Response(JSON.stringify({ error: "API_KEY secret is missing." }), { status: 500, headers: corsHeaders });
     }
 
-    if (url.pathname === "/api/get" || url.pathname === "/api/adafruit") {
+    if (request.method === "GET" && (url.pathname === "/api/get" || url.pathname === "/api/adafruit")) {
       try {
         const response = await fetch(`${baseUrl}?limit=10`, { headers: { "X-AIO-Key": apiKey } });
         const data = await response.json();
-        
         const valuesArray = Array.isArray(data) ? data.map(item => item.value) : [];
         return new Response(JSON.stringify(valuesArray), { headers: corsHeaders });
       } catch (err) {
@@ -33,7 +32,7 @@ export default {
       }
     }
 
-    if (url.pathname === "/api/send" && request.method === "POST") {
+    if (request.method === "POST" && (url.pathname === "/api/send" || url.pathname === "/api/adafruit")) {
       try {
         const body = await request.json();
         const response = await fetch(baseUrl, {
