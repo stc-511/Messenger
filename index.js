@@ -21,8 +21,7 @@ export default {
       return new Response(JSON.stringify({ error: "API_KEY variable is empty inside environmental memory." }), { status: 500, headers: corsHeaders });
     }
 
-    if (url.pathname.includes("/api/adafruit")) {
-      
+    if (url.pathname.includes("/api/adafruit")) {      
       if (request.method === "GET") {
         try {
           const response = await fetch(`${baseUrl}?limit=10`, { headers: { "X-AIO-Key": apiKey } });
@@ -33,7 +32,7 @@ export default {
           }
 
           const data = await response.json();
-          const valuesArray = Array.isArray(data) ? data.map(item => item.value) : [];
+          const valuesArray = Array.isArray(data) ? data.map(item => item) : [];
           return new Response(JSON.stringify(valuesArray), { headers: corsHeaders });
         } catch (err) {
           return new Response(JSON.stringify({ error: "Worker Parse Defect", internalMessage: err.message }), { status: 500, headers: corsHeaders });
@@ -43,6 +42,18 @@ export default {
       if (request.method === "POST") {
         try {
           const body = await request.json();
+	  if (url.searchParams.get("action") === "delete-batch") {
+		const idsToDelete = body.ids || [];
+
+		for (const msgId of idsToDelete) {
+			await fetch(`${baseUrl}/${msgId}`, {
+				method: "DELETE",
+				headers: {"X-AIO-Key": apiKey}
+			});
+		}
+		return new Response(JSON.stringify({ success: true, count: idsToDelete.length }), { headers: corsHeaders });
+
+	  }
           const response = await fetch(baseUrl, {
             method: "POST",
             headers: { "X-AIO-Key": apiKey, "Content-Type": "application/json" },
@@ -59,6 +70,19 @@ export default {
         } catch (err) {
           return new Response(JSON.stringify({ error: "Worker Processing Defect", internalMessage: err.message }), { status: 500, headers: corsHeaders });
         }
+      }
+
+      if (request.method === "DELETE") {
+	  try {
+		const response = await fetch(`https://io.adafruit.com/api/v2/${username}/feeds/${feedname}/data/purge`, {
+		method: "DELETE",
+		headers: { "X-AIO-Key": apiKey}
+		});
+		if (!response.ok) {
+			const errDetails = await response.text();
+			return new Response(JSON.stringify({success: true, message: "Feed wiped completely"}), { headers: corsHeaders});
+		}
+	  }
       }
     }
 
