@@ -9,33 +9,33 @@ export default {
     const corsHeaders = {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS, DELETE",
       "Access-Control-Allow-Headers": "Content-Type",
     };
 
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: corsHeaders });
+      return new Response(null, {status: 204, headers: corsHeaders});
     }
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "API_KEY variable is empty inside environmental memory." }), { status: 500, headers: corsHeaders });
+      return new Response(JSON.stringify({error: "API_KEY variable is empty inside environmental memory."}), {status: 500, headers: corsHeaders});
     }
 
     if (url.pathname.includes("/api/adafruit")) {      
       if (request.method === "GET") {
         try {
-          const response = await fetch(`${baseUrl}?limit=10`, { headers: { "X-AIO-Key": apiKey } });
+          const response = await fetch(`${baseUrl}?limit=10`, {headers: {"X-AIO-Key": apiKey}});
           
           if (!response.ok) {
             const errDetails = await response.text();
-            return new Response(JSON.stringify({ error: "Adafruit API Refused Request", status: response.status, details: errDetails }), { status: 500, headers: corsHeaders });
+            return new Response(JSON.stringify({error: "Adafruit API Refused Request", status: response.status, details: errDetails}), {status: 500, headers: corsHeaders});
           }
 
           const data = await response.json();
           const valuesArray = Array.isArray(data) ? data.map(item => item) : [];
-          return new Response(JSON.stringify(valuesArray), { headers: corsHeaders });
+          return new Response(JSON.stringify(valuesArray), {headers: corsHeaders});
         } catch (err) {
-          return new Response(JSON.stringify({ error: "Worker Parse Defect", internalMessage: err.message }), { status: 500, headers: corsHeaders });
+          return new Response(JSON.stringify({error: "Worker Parse Defect", internalMessage: err.message}), {status: 500, headers: corsHeaders});
         }
       }
 
@@ -51,42 +51,57 @@ export default {
 				headers: {"X-AIO-Key": apiKey}
 			});
 		}
-		return new Response(JSON.stringify({ success: true, count: idsToDelete.length }), { headers: corsHeaders });
+		return new Response(JSON.stringify({success: true, count: idsToDelete.length}), {headers: corsHeaders});
 
 	  }
           const response = await fetch(baseUrl, {
             method: "POST",
-            headers: { "X-AIO-Key": apiKey, "Content-Type": "application/json" },
-            body: JSON.stringify({ value: body.value })
+            headers: {"X-AIO-Key": apiKey, "Content-Type": "application/json"},
+            body: JSON.stringify({value: body.value})
           });
 
           if (!response.ok) {
             const errDetails = await response.text();
-            return new Response(JSON.stringify({ error: "Adafruit Discarded Inbound Msg", status: response.status, details: errDetails }), { status: 500, headers: corsHeaders });
+            return new Response(JSON.stringify({error: "Adafruit Discarded Inbound Msg", status: response.status, details: errDetails}), {status: 500, headers: corsHeaders});
           }
 
           const data = await response.json();
           return new Response(JSON.stringify(data), { headers: corsHeaders });
         } catch (err) {
-          return new Response(JSON.stringify({ error: "Worker Processing Defect", internalMessage: err.message }), { status: 500, headers: corsHeaders });
+          return new Response(JSON.stringify({error: "Worker Processing Defect", internalMessage: err.message}), {status: 500, headers: corsHeaders});
         }
       }
 
       if (request.method === "DELETE") {
 	  try {
-		const response = await fetch(`https://io.adafruit.com/api/v2/${username}/feeds/${feedname}/data/purge`, {
+		const {dataId} = await request.json();
+		if (!dataId) {
+			return new Response(JSON.stringify({error: "Missing dataId in request body"}), {
+				status: 400,
+				headers: {"Content-Type": "application/json"}
+			});
+		}
+		const response = await fetch(`${baseUrl}/${dataId}`, {
 		method: "DELETE",
-		headers: { "X-AIO-Key": apiKey}
+			headers: corsHeaders
 		});
 		if (!response.ok) {
 			const errDetails = await response.text();
-			return new Response(JSON.stringify({success: true, message: "Feed wiped completely"}), { headers: corsHeaders});
+			return new Response(JSON.stringify({error: "Adafruit Refused Delete", status: response.status, details: errDetails}), {status: 500, headers: corsHeaders});
+		} else {
+			const data = await response.json();
+			return new Response(JSON.stringify(data), {headers: corsHeaders})
 		}
+	  } catch (error) {
+		return new Response(JSON.stringify({error: error.message}), {
+			status: 500,
+			headers: corsHeaders
+		})
 	  }
       }
     }
 
-    return new Response(JSON.stringify({ error: "Endpoint Not Found" }), { status: 404, headers: corsHeaders });
+    return new Response(JSON.stringify({error: "Something went wrong. That is not all I know. I know what happened. I just do not want to tell you. Why are you still here? Snoop around somewhere else!"}), {status: 404, headers: corsHeaders});
   }
 };
 
