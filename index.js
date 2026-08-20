@@ -83,14 +83,19 @@ export default {
 		}
 		const response = await fetch(`${baseUrl}/${dataId}`, {
 		method: "DELETE",
-			headers: corsHeaders
+			headers: {"X-AIO-Key": apiKey}
 		});
 		if (!response.ok) {
 			const errDetails = await response.text();
 			return new Response(JSON.stringify({error: "Adafruit Refused Delete", status: response.status, details: errDetails}), {status: 500, headers: corsHeaders});
 		} else {
-			const data = await response.json();
-			return new Response(JSON.stringify(data), {headers: corsHeaders})
+			const textData = await response.text();
+			return new Response(JSON.stringify({
+				success: true,
+				message: textData
+			}), {
+				headers: corsHeaders
+			});
 		}
 	  } catch (error) {
 		return new Response(JSON.stringify({error: error.message}), {
